@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Book } from '../../models';
+import { BookService } from '../../services';
 
 @Component({
   selector: 'app-book-detail',
@@ -11,7 +14,29 @@ export class BookDetailComponent implements OnInit {
   @Input()
   book: Book;
 
-  constructor() {}
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly bookService: BookService
+  ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // this.route.paramMap
+    //   .subscribe(params => {
+    //   console.log(params.get('id'));
+    //   this.bookService.showBook(params.get('id')).subscribe(book => {
+    //     console.log('book', book);
+    //     this.book = book;
+    //   });
+    // });
+
+    this.route.paramMap
+      .pipe(
+        map(params => params.get('id')),
+        switchMap(id => this.bookService.showBook(id))
+      )
+      .subscribe(book => {
+        console.log('book', book);
+        this.book = book;
+      });
+  }
 }
